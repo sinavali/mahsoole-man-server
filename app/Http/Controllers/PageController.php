@@ -20,7 +20,6 @@ class PageController extends Controller
         $categories = Category::getCategories2(7);
         $latestProducts = Product::getProducts2(4);
         $onSaleProducts = Product::getOnSaleProducts(10);
-        $onSaleProducts = Product::getProducts2(10);
 
         return response()->json([
             'categories' => $categories,

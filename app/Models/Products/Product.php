@@ -25,7 +25,6 @@ class Product extends Model
         'quantity',
         'price',
         'off_price',
-        'published'
     ];
     public static function boot()
     {
@@ -47,6 +46,21 @@ class Product extends Model
         }
         return false;
     }
+    public static function productCanGetProccessed($uuid)
+    {
+        $product = self::where('uuid', $uuid)->get();
+        if (!count($product))
+            return [false, 'محصول یافت نشد'];
+        $product = $product[0];
+        if ($product->status !== 'published')
+            return [false, 'فروشنده محصول را از دسترس خارج کرده است'];
+        if ($product->active !== 1)
+            return [false, 'محصول در صف تایید است.'];
+        if ($product->quantity < 1)
+            return [false, 'موجودی محصول کافی نمی باشد.'];
+        return [true, $product];
+    }
+
     public static function activeProduct($uuid)
     {
         if (!$uuid)
@@ -189,7 +203,7 @@ class Product extends Model
     public static function getProducts2($take = null)
     {
         $products = self::select('id', 'uuid', 'title', 'active', 'status', 'content', 'sku', 'quantity', 'price', 'off_price', 'created_at', 'vendor_uuid')
-            ->with(['categories:id,title'])->latest();
+            ->with(['categories:id,title'])->where('status', 'published')->where('active', 1)->latest();
         if ($take)
             $products = $products->take($take)->get();
         else
@@ -199,7 +213,7 @@ class Product extends Model
     public static function getOnSaleProducts($take = null)
     {
         $products = self::select('id', 'uuid', 'title', 'active', 'status', 'content', 'sku', 'quantity', 'price', 'off_price', 'created_at', 'vendor_uuid')
-            ->with(['categories:id,title'])->where('off_price', "!=", '')->latest();
+            ->with(['categories:id,title'])->where('status', 'published')->where('active', 1)->where('off_price', "!=", '')->latest();
         if ($take)
             $products = $products->take($take)->get();
         else

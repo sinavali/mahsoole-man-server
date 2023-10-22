@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CartItemController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\MediaController;
 use App\Http\Controllers\PageController;
@@ -46,9 +47,14 @@ Route::prefix('/v1/panel')->group(function () {
     });
 });
 Route::prefix('/v1/front')->group(function () {
+    Route::prefix('auth')->group(function () {
+        Route::post('/send-otp', [AuthController::class, 'customerMobileSendOtp']);
+        Route::post('/verify-otp', [AuthController::class, 'checkOTP']);
+    });
     Route::get('layout', [PageController::class, 'layout']);
     Route::prefix('pages')->group(function () {
         Route::get('/main-page', [PageController::class, 'mainPage']);
         Route::get('/product-page/{uuid}', [PageController::class, 'productPage']);
     });
+    Route::get('/add-to-cart/{uuid}', [CartItemController::class, 'addToCart'])->middleware('auth:sanctum');
 });

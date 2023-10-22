@@ -52,7 +52,7 @@ class AuthController extends Controller
         return response()->json("کد احراز هویت ارسال شد.");
     }
 
-    public static function checkOTP(Request $req): JsonResponse
+    public static function checkOTP(Request $req)
     {
         // validate request
         if (!$req->mobile)
@@ -86,14 +86,14 @@ class AuthController extends Controller
             return Vendor::generateTokenForVendor($vendor, $req->action);
         }
         if ($req->as == 'customer') {
-            $otp = User::userCheckMobileOtp($req->mobile, $req->otp);
+            $otp = User::getLatestLoginOtp($req->mobile, $req->otp);
             if (!$otp)
                 return response()->json("کد احراز یافت نشد. لطفا دوباره امتحان کنید.", 404);
             // now we know there is an OTP with this user and this OTP code
             // and by the time its valid so we delete all 
             // users (every user) otp login thats not valid (its safe)
             UserMeta::deleteStaleLoginOTPsWith($otp->id);
-            return Vendor::generateTokenForVendor(User::getUser($req->mobile), $req->action);
+            return User::generateTokenForCustomer($req->mobile, $req->action);
         } else
             return response()->json('خطایی رخ داده است. لطفا با پشتیبانی تماس بگیرید.', 500);
     }
@@ -159,7 +159,17 @@ class AuthController extends Controller
             return response()->json('فروشگاهی با این شماره تماس پیدا نشد. لطفا ثبت نام کنید.', 404);
         }
     }
-
+    public static function customerMobileSendOtp(Request $req): JsonResponse
+    {
+        if (Methods::validateMobile($req->mobile))
+            $req->mobile = Methods::mobileToMinimal($req->mobile);
+        else
+            return response()->json('شماره تماس اشتباه است', 403);
+        $customer = User::getCustomer($req->mobile);
+        if ($customer)
+            return self::sendOTP($customer);
+        return response()->json('کاربری با این شماره تماس پیدا نشد. لطفا ثبت نام کنید.', 404);
+    }
     public static function findVendorSupportMobile($metas, $key): string
     {
         foreach ($metas as $m) {

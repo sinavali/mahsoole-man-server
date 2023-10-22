@@ -13,12 +13,12 @@ class UserMeta extends Model
         "meta_value",
     ];
 
-    public static function createOTP($uuid)
+    public static function createOTP($uuid ,$action = null)
     {
         $otp = rand(1000, 9999);
         self::create([
             "relation_uuid" => $uuid,
-            "meta_key" => "login_otp",
+            "meta_key" => $action ? $action : "login_otp",
             "meta_value" => $otp
         ]);
         return $otp;

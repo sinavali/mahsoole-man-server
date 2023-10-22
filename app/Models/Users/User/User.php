@@ -9,7 +9,6 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Carbon;
 use Laravel\Sanctum\HasApiTokens;
-use Spatie\Permission\Traits\HasPermissions;
 use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
@@ -24,19 +23,20 @@ class User extends Authenticatable
             $model->uuid = strrev(mt_rand(100, 999) . substr(floor(microtime(true) * 10000), 5));
         });
     }
-
-    public static function getUser($mobile)
+    // methods
+    public static function getCustomer($mobile)
     {
-        $temp = self::select('id', 'uuid', 'mobile')
+        $temp = self::select('id', 'uuid', 'mobile', 'email')
             ->where('mobile', $mobile)
-            ->with('roles')
             ->with('metas', function ($query) {
-                $query->whereIn('meta_key', ['name']);
+                $query->whereIn('meta_key', [
+                    'customer_first_name',
+                    'customer_last_name',
+                ]);
             })->get();
         if (!count($temp))
             return false;
         $temp[0]->makeHidden('id');
-        $temp[0]->roles->makeHidden(['created_at', 'updated_at', 'pivot', 'guard_name', 'id']);
         $temp[0]->metas->makeHidden(['created_at', 'updated_at', 'relation_uuid']);
         return $temp[0];
     }
@@ -50,29 +50,32 @@ class User extends Authenticatable
                     ->where('created_at', '>', Carbon::now()->subMinutes(2))
                     ->latest();
             })->get();
-        return !count($temp) || !count($temp[0]->metas) ? false : $temp[0]->metas[0];
+        if (!count($temp) || !count($temp[0]->metas))
+            return false;
+        else
+            return $temp[0]->metas[0];
     }
-    public static function userCheckMobileOtp($mobile, $otp)
+    public static function generateTokenForCustomer($mobile, $action)
     {
-        return self::getLatestLoginOtp($mobile, $otp);
-    }
-    public static function generateTokenForUser($user, $action)
-    {
+        $customer = self::getCustomer($mobile);
         $data = [];
-        if ($action == 'login') {
+        if ($action == 'login')
             $data = [
-                "token" => $user->createToken($user->uuid . '-' . $user->mobile)->plainTextToken,
-                "user" => $user,
+                "token" => $customer->createToken($customer->uuid . '-' . $mobile)->plainTextToken,
+                "user" => $customer,
             ];
-        } else
+        else
             $data = false;
-        return response()->json($data ? $data : 'نوع عملیات را ارسال کنید.', $data ? 200 : 429);
+        if ($data)
+            return response()->json($data);
+        else
+            return response()->json('نوع عملیات را ارسال کنید.', 429);
     }
+    // relations
     public function metas(): HasMany
     {
-        return $this->hasMany(UserMeta::class, 'user_uuid', 'uuid');
+        return $this->hasMany(UserMeta::class, 'relation_uuid', 'uuid');
     }
-
     public function logs(): HasMany
     {
         return $this->hasMany(Log::class, 'by', 'uuid');

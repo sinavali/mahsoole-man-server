@@ -162,14 +162,12 @@ class DatabaseSeeder extends Seeder
             'title' => 'محصول شماره 3',
             'vendor_uuid' => $vendor1->uuid,
             'active' => 1,
-            'status' => 'published',
             'price' => 4350000
         ]);
         Product::create([
             'title' => 'محصول شماره 4',
             'vendor_uuid' => $vendor1->uuid,
             'active' => 1,
-            'status' => 'published',
             'price' => 1700000
         ]);
         Product::create([
@@ -188,14 +186,12 @@ class DatabaseSeeder extends Seeder
             'title' => 'محصول شماره 3',
             'vendor_uuid' => $vendor2->uuid,
             'active' => 1,
-            'status' => 'published',
             'price' => 4550000
         ]);
         Product::create([
             'title' => 'محصول شماره 4',
             'vendor_uuid' => $vendor2->uuid,
             'active' => 1,
-            'status' => 'published',
             'price' => 1600000
         ]);
         Product::create([
@@ -214,14 +210,12 @@ class DatabaseSeeder extends Seeder
             'title' => 'محصول شماره 3',
             'vendor_uuid' => $vendor4->uuid,
             'active' => 1,
-            'status' => 'published',
             'price' => 5550000
         ]);
         Product::create([
             'title' => 'محصول شماره 4',
             'vendor_uuid' => $vendor4->uuid,
             'active' => 1,
-            'status' => 'published',
             'price' => 1000000
         ]);
         // create discount
