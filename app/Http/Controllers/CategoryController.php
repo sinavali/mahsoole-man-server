@@ -18,7 +18,7 @@ class CategoryController extends Controller
                 return response()->json($categories);
             return response()->json('دسته بندی ایی یافت نشد.', 404);
         } else
-            return response()->json('شناسه دسته بندی ها را ارسال کنید.', 500);
+            return response()->json('شناسه دسته بندی ها را ارسال کنید.', 422);
     }
     public static function getAllCategories(Request $req)
     {
@@ -35,9 +35,9 @@ class CategoryController extends Controller
     public static function assignImage(Request $req)
     {
         if (!$req->id)
-            return response()->json('شناسه دسته بندی را ارسال کنید.', 429);
+            return response()->json('شناسه دسته بندی را ارسال کنید.', 422);
         if (!$req->file('featured_image'))
-            return response()->json('فایل را ارسال کنید.', 429);
+            return response()->json('فایل را ارسال کنید.', 422);
         $category = Category::getCategory($req->id);
         Category::deleteImage($category);
         Category::assignImage($req, $category);
@@ -51,7 +51,7 @@ class CategoryController extends Controller
         if ($count > 7)
             return response()->json('حداکثر تعداد مجاز دسته بندی برای هر فروشگاه 7 عدد میباشد.', 503);
         if (!$req->title)
-            return response()->json('عنوان دسته بندی را وارد کنید.', 429);
+            return response()->json('عنوان دسته بندی را وارد کنید.', 422);
         $category = Category::newCategory($req);
         if ($category)
             return response()->json($category);
@@ -60,9 +60,9 @@ class CategoryController extends Controller
     public static function editCategory(Request $req)
     {
         if (!$req->id)
-            return response()->json('شناسه دسته بندی را وارد کنید.', 429);
+            return response()->json('شناسه دسته بندی را وارد کنید.', 422);
         if (!$req->title)
-            return response()->json('عنوان دسته بندی را وارد کنید.', 429);
+            return response()->json('عنوان دسته بندی را وارد کنید.', 422);
         $category = Category::editCategory($req->id, $req->title);
         if ($category)
             return response()->json('دسته بندی با موفقیت ویرایش شد.');
@@ -71,10 +71,10 @@ class CategoryController extends Controller
     public static function deleteCategories(Request $req)
     {
         if (!$req->ids)
-            return response()->json('شناسه دسته بندی ها را وارد کنید.', 429);
+            return response()->json('شناسه دسته بندی ها را وارد کنید.', 422);
         $res = Category::deleteCategories($req);
         if ($res)
             return response()->json('دسته بندی ها با موفقیت حذف شدند.');
-        return response()->json('افزودن دسته بندی با خطا مواجه شد. لطفا دوباره امتحان کنید.', 500);
+        return response()->json('حذف دسته بندی با خطا مواجه شد. لطفا دوباره امتحان کنید.', 500);
     }
 }

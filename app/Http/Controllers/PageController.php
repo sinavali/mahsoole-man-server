@@ -60,8 +60,11 @@ class PageController extends Controller
     public static function productPage(Request $req)
     {
         if (!$req->uuid)
-            return response()->json('شناسه کالا را ارسال کنید.', 429);
-        $product = Product::getProductByUUID($req->uuid);
-        return response()->json($product);
+            return response()->json('شناسه کالا را ارسال کنید.', 422);
+        $product = Product::getProductByUUIDForFront($req->uuid);
+        if ($product)
+            return response()->json($product);
+        else
+            return response()->json('درحال حاظر به محصول دسترسی نداریم. لطفا دوباره امتحان کنید.', 503);
     }
 }

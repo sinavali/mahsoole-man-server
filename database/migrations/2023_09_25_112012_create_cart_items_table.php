@@ -14,6 +14,7 @@ return new class extends Migration {
             $table->id();
             $table->string('user_uuid');
             $table->string('product_uuid');
+            $table->string('product_vendor_uuid');
             $table->integer('quantity');
             $table->timestamps();
         });

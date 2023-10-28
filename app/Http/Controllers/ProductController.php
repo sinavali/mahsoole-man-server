@@ -10,7 +10,7 @@ class ProductController extends Controller
     public static function getProduct(Request $req)
     {
         if (!$req->uuid)
-            return response()->json('شناسه محصول را وارد کنید.', 403);
+            return response()->json('شناسه محصول را وارد کنید.', 422);
         //
         $product = Product::getProduct($req->user()->uuid, $req->uuid);
         if (!$product)
@@ -41,7 +41,7 @@ class ProductController extends Controller
         if (!$req->user()->hasRole('vendor'))
             return response()->json('شما اجازه دسترسی به این بخش را ندارید.', 403);
         if (!$req->title)
-            return response()->json('عنوان محصول را وارد کنید.', 403);
+            return response()->json('عنوان محصول را وارد کنید.', 422);
         //
         $data = [
             'title' => $req->title,
@@ -88,9 +88,9 @@ class ProductController extends Controller
         if (!$req->user()->hasRole('vendor'))
             return response()->json('شما اجازه دسترسی به این بخش را ندارید.', 403);
         if (!$req->uuid)
-            return response()->json('شناسه محصول را وارد کنید.', 403);
+            return response()->json('شناسه محصول را وارد کنید.', 422);
         if (!$req->title)
-            return response()->json('عنوان محصول را وارد کنید.', 403);
+            return response()->json('عنوان محصول را وارد کنید.', 422);
         //
         $product = Product::getProduct($req->user()->uuid, $req->uuid);
         if (!$product)
@@ -149,7 +149,7 @@ class ProductController extends Controller
         if (!$req->user()->hasRole('vendor'))
             return response()->json('شما اجازه دسترسی به این بخش را ندارید.', 403);
         if (!$req->uuids)
-            return response()->json('شناسه محصولات را ارسال کنید.', 429);
+            return response()->json('شناسه محصولات را ارسال کنید.', 422);
         $res = Product::deleteProducts($req->user()->uuid, $req->uuids);
         if ($res)
             return response()->json('محصولات با موفقیت حذف شدند.');

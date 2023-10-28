@@ -99,7 +99,7 @@ class Vendor extends Model
             $data = 'شماره تماس تایید شد.';
         } else
             $data = false;
-        return response()->json($data ? $data : 'نوع عملیات را ارسال کنید.', $data ? 200 : 429);
+        return response()->json($data ? $data : 'نوع عملیات را ارسال کنید.', $data ? 200 : 422);
     }
     public function metas(): HasMany
     {

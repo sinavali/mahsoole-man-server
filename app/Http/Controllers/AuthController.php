@@ -22,7 +22,7 @@ class AuthController extends Controller
         if (Methods::validateMobile($req->mobile))
             $req->mobile = Methods::mobileToMinimal($req->mobile);
         else
-            return response()->json('شماره تماس را در قالب درست وارد کنید.', 400);
+            return response()->json('شماره تماس را در قالب درست وارد کنید.', 422);
         //
         $user = User::where('mobile', $req->mobile)->get();
         //
@@ -56,17 +56,17 @@ class AuthController extends Controller
     {
         // validate request
         if (!$req->mobile)
-            return response()->json('شماره موبایل را ارسال کنید.', 429);
+            return response()->json('شماره موبایل را ارسال کنید.', 422);
         if (Methods::validateMobile($req->mobile))
             $req->mobile = Methods::mobileToMinimal($req->mobile);
         else
-            return response()->json('شماره تماس اشتباه است.', 403);
+            return response()->json('شماره تماس اشتباه است.', 422);
         if (!$req->otp)
-            return response()->json('کد احراز را ارسال کنید.', 429);
+            return response()->json('کد احراز را ارسال کنید.', 422);
         if (!$req->action)
-            return response()->json('نوع عملیات را ارسال کنید.', 429);
+            return response()->json('نوع عملیات را ارسال کنید.', 422);
         if (!$req->as)
-            return response()->json('نوع کاربر را ارسال کنید.', 429);
+            return response()->json('نوع کاربر را ارسال کنید.', 422);
         //
         // first i'm checking if it is any otp related to this number
         // so if FALSE don't fetch vendor data for no reason
@@ -80,7 +80,6 @@ class AuthController extends Controller
             // users (every user) otp login thats not valid (its safe)
             UserMeta::deleteStaleLoginOTPsWith($otp->id);
             $vendor = Vendor::getVendor($req->mobile);
-            // return response()->json(Vendor::isActive($vendor), 200);
             if (!Vendor::isActive($vendor))
                 return response()->json('این فروشگاه فعال نیست. لطفا با پشتیبانی تماس بگیرید.', 503);
             return Vendor::generateTokenForVendor($vendor, $req->action);
@@ -102,7 +101,7 @@ class AuthController extends Controller
     {
         UserMeta::deleteStaleLoginOTPsWith();
         if (!$req->user())
-            return response()->json(false);
+            return response()->json(true); // user is already logged out
         $req->user()->tokens()->delete();
         return response()->json('با موفقیت خارج شدید.');
     }
@@ -110,19 +109,19 @@ class AuthController extends Controller
     public static function vendorSignup(Request $req): JsonResponse
     {
         if ($req->owner_name)
-            return response()->json('عنوان فروشگاه را وارد کنید.', 429);
+            return response()->json('عنوان فروشگاه را وارد کنید.', 422);
         if ($req->owner_last_name)
-            return response()->json('عنوان فروشگاه را وارد کنید.', 429);
+            return response()->json('عنوان فروشگاه را وارد کنید.', 422);
         if ($req->owner_mobile)
-            return response()->json('عنوان فروشگاه را وارد کنید.', 429);
+            return response()->json('عنوان فروشگاه را وارد کنید.', 422);
         if ($req->title)
-            return response()->json('عنوان فروشگاه را وارد کنید.', 429);
+            return response()->json('عنوان فروشگاه را وارد کنید.', 422);
         if ($req->slug)
-            return response()->json('نامک فروشگاه را وارد کنید.', 429);
+            return response()->json('نامک فروشگاه را وارد کنید.', 422);
         if ($req->address)
-            return response()->json('آدرس فیزیکی فروشگاه را وارد کنید.', 429);
+            return response()->json('آدرس فیزیکی فروشگاه را وارد کنید.', 422);
         if ($req->merchant_code)
-            return response()->json('مرچنت کد آی دی پی را وارد کنید.', 429);
+            return response()->json('مرچنت کد آی دی پی را وارد کنید.', 422);
         //
         // model
         $vendor = Vendor::create(['slug' => $req->slug, 'mobile' => $req->owner_mobile]);
@@ -146,7 +145,7 @@ class AuthController extends Controller
         if (Methods::validateMobile($req->mobile))
             $req->mobile = Methods::mobileToMinimal($req->mobile);
         else
-            return response()->json('شماره تماس اشتباه است', 403);
+            return response()->json('شماره تماس اشتباه است', 422);
         $vendors = null;
         if ($req->support) {
             $vendors = Vendor::where('uuid', $req->user()->uuid)->with('metas')->get();
@@ -164,7 +163,7 @@ class AuthController extends Controller
         if (Methods::validateMobile($req->mobile))
             $req->mobile = Methods::mobileToMinimal($req->mobile);
         else
-            return response()->json('شماره تماس اشتباه است', 403);
+            return response()->json('شماره تماس اشتباه است', 422);
         $customer = User::getCustomer($req->mobile);
         if ($customer)
             return self::sendOTP($customer);

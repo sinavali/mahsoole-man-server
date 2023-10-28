@@ -69,7 +69,7 @@ class User extends Authenticatable
         if ($data)
             return response()->json($data);
         else
-            return response()->json('نوع عملیات را ارسال کنید.', 429);
+            return response()->json('نوع عملیات را ارسال کنید.', 422);
     }
     // relations
     public function metas(): HasMany

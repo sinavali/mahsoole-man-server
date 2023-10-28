@@ -51,10 +51,19 @@ Route::prefix('/v1/front')->group(function () {
         Route::post('/send-otp', [AuthController::class, 'customerMobileSendOtp']);
         Route::post('/verify-otp', [AuthController::class, 'checkOTP']);
     });
-    Route::get('layout', [PageController::class, 'layout']);
+    Route::prefix('layout')->group(function () {
+        Route::get('/', [PageController::class, 'layout']);
+    });
     Route::prefix('pages')->group(function () {
         Route::get('/main-page', [PageController::class, 'mainPage']);
         Route::get('/product-page/{uuid}', [PageController::class, 'productPage']);
     });
-    Route::get('/add-to-cart/{uuid}', [CartItemController::class, 'addToCart'])->middleware('auth:sanctum');
+    Route::prefix('cart')->group(function () {
+        Route::get('/get', [CartItemController::class, 'getCart'])->middleware('auth:sanctum');
+        Route::post('/add/{uuid}', [CartItemController::class, 'addToCart'])->middleware('auth:sanctum');
+        Route::delete('/remove/{id}', [CartItemController::class, 'removeFromCart'])->middleware('auth:sanctum');
+        Route::get('/count', [CartItemController::class, 'getCartCount'])->middleware('auth:sanctum');
+        Route::get('/go-up/{id}', [CartItemController::class, 'cartItemQuantityGoUp'])->middleware('auth:sanctum');
+        Route::get('/go-down/{id}', [CartItemController::class, 'cartItemQuantityGoDown'])->middleware('auth:sanctum');
+    });
 });

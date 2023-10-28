@@ -2,6 +2,7 @@
 
 namespace App\Models\Products;
 
+use App\Models\Activities\CartItem;
 use App\Models\Products\Category;
 use App\Models\Products\CategoryProduct;
 use App\Models\Users\Vendor\Vendor;
@@ -46,19 +47,40 @@ class Product extends Model
         }
         return false;
     }
-    public static function productCanGetProccessed($uuid)
+    public static function productCanGetProccessed($product_uuid, $user_uuid)
     {
-        $product = self::where('uuid', $uuid)->get();
-        if (!count($product))
-            return [false, 'محصول یافت نشد'];
-        $product = $product[0];
-        if ($product->status !== 'published')
-            return [false, 'فروشنده محصول را از دسترس خارج کرده است'];
-        if ($product->active !== 1)
-            return [false, 'محصول در صف تایید است.'];
-        if ($product->quantity < 1)
-            return [false, 'موجودی محصول کافی نمی باشد.'];
-        return [true, $product];
+        $cartItem = CartItem::getCartItemByProductId($product_uuid, $user_uuid);
+        $product = self::where('uuid', $product_uuid)->with('vendor')->latest()->first();
+        $data = ['status' => 'ok', 'data' => $product];
+        // validations
+        if (!$product) {
+            $data['status'] = 'error';
+            $data['data'] = 'محصول یافت نشد';
+            return $data;
+        }
+        if ($product->status !== 'published') {
+            $data['status'] = 'error';
+            $data['data'] = 'فروشنده محصول را از دسترس خارج کرده است';
+            return $data;
+        }
+        if ($product->active !== 1) {
+            $data['status'] = 'error';
+            $data['data'] = 'محصول در صف تایید است.';
+            return $data;
+        }
+        if ($product->quantity < 1) {
+            $data['status'] = 'error';
+            $data['data'] = 'موجودی محصول کافی نمی باشد.';
+            return $data;
+        }
+        if ($cartItem) {
+            if (!($product->quantity > $cartItem->quantity)) {
+                $data['status'] = 'error';
+                $data['data'] = 'موجودی محصول کافی نیست.';
+                return $data;
+            }
+        }
+        return $data;
     }
 
     public static function activeProduct($uuid)
@@ -111,10 +133,11 @@ class Product extends Model
         }
         return false;
     }
-    public static function getProductByUUID($uuid)
+    public static function getProductByUUIDForFront($uuid)
     {
         $product = self::select('id', 'title', 'uuid', 'active', 'status', 'content', 'sku', 'quantity', 'price', 'off_price', 'created_at', 'vendor_uuid')
-            ->with(['metas:id,meta_key,meta_value', 'categories:id,title', 'vendor.metasForProduct:relation_uuid,meta_key,meta_value'])->where('uuid', $uuid);
+            ->with(['metas:id,meta_key,meta_value', 'categories:id,title', 'vendor.metasForProduct:relation_uuid,meta_key,meta_value'])
+            ->where('uuid', $uuid)->where('active', 1)->where('status', 'published');
 
         $product = $product->get();
         if (!count($product))
@@ -247,7 +270,6 @@ class Product extends Model
     {
         return $this->hasOne(Vendor::class, 'uuid', 'vendor_uuid')->select('uuid', 'slug', 'mobile', 'email', 'active');
     }
-
     public function metas(): HasMany
     {
         return $this->hasMany(ProductMeta::class, 'product_uuid', 'uuid')->select('id', 'meta_key', 'meta_value');

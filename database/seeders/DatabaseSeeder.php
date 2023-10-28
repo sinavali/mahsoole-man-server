@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\Activities\Discount;
 use App\Models\Logs\Log;
 use App\Models\Products\Category;
+use App\Models\Products\CategoryProduct;
 use App\Models\Products\Product;
 use App\Models\Users\Admin\Admin;
 use App\Models\Users\Operator\Operator;
@@ -79,26 +80,30 @@ class DatabaseSeeder extends Seeder
             'email_confirmed' => 1,
             'mobile' => '9015389399',
             'active' => 1,
-            'slug' => 'my-shop-1'
+            'slug' => 'my-shop-1',
+            'title' => 'my shop 1'
         ])->assignRole('vendor');
         $vendor2 = Vendor::create([
             'email' => 'sina1vali@gmail.com',
             'email_confirmed' => 1,
             'mobile' => '9015389395',
-            'slug' => 'my-shop-2'
+            'slug' => 'my-shop-2',
+            'title' => 'my shop 2'
         ]);
         $vendor3 = Vendor::create([
             'email' => 'sina1vali@gmail.com',
             'email_confirmed' => 1,
             'mobile' => '9015389394',
             'active' => 1,
-            'slug' => 'my-shop-3'
+            'slug' => 'my-shop-3',
+            'title' => 'my shop 3'
         ]);
         $vendor4 = Vendor::create([
             'email' => 'sina1vali@gmail.com',
             'email_confirmed' => 1,
             'mobile' => '9015389393',
-            'slug' => 'my-shop-4'
+            'slug' => 'my-shop-4',
+            'title' => 'my shop 4'
         ]);
         User::create([
             'email' => 'sina1vali@gmail.com',
@@ -298,7 +303,7 @@ class DatabaseSeeder extends Seeder
             'meta_value' => 'گرگان'
         ]);
         // // create categories
-        Category::create([
+        $category1 = Category::create([
             'vendor_uuid' => $vendor1->uuid,
             'title' => 'دسته بندی 1',
         ]);
@@ -310,13 +315,39 @@ class DatabaseSeeder extends Seeder
             'vendor_uuid' => $vendor1->uuid,
             'title' => 'دسته بندی 3',
         ]);
-        Category::create([
+        $category2 = Category::create([
             'vendor_uuid' => $vendor1->uuid,
             'title' => 'دسته بندی 4',
         ]);
-        Category::create([
+        $category3 = Category::create([
             'vendor_uuid' => $vendor1->uuid,
             'title' => 'دسته بندی 5',
         ]);
+        $mainProduct = Product::create([
+            'uuid' => '214311842437',
+            'title' => 'لپ تاپ 15.6 اینچی ایسر مدل Aspire 3 A315-510P-3652 - i3 4GB 512SSD - کاستوم شده',
+            'vendor_uuid' => $vendor1->uuid,
+            'active' => 1,
+            'status' => 'published',
+            'price' => 15800000,
+            'off_price' => 15400000,
+            'quantity' => 10,
+            'sku' => 'ishop-50001',
+            'content' => '<p>شرکت «ایسر» یکی از شرکت‌های فعال در زمینه‌ی تولید لپ‌تاپ است که طیف وسیع محصولاتش براساس نیاز مشتری ساخته شده و این یکی از ویژگی‌هایی است که باعث شده این شرکت در ایران طرفداران زیادی داشته باشد. لپ‌تاپ مدل «‌ Aspire 3 A315-510P-3652» یکی از مدل‌های زیبا، ظریف و بسیار باکیفیت است. پردازنده‌ی مرکزی i3 اینتل با مدل N305 پردازش محاسبات را برعهده دارد.4 گیگابایت حافظه‌ی رم و 512 گیگابایت حافظه از نوع SSD (درایو حالت جامد) (Solid State Drive) برای ذخیره و نقل‌و‌انتقال اطلاعات استفاده می‌شود و مناسب به‌نظر می‌رسد. صفحه‌نمایش آن 15.6 اینچی با دقت‌ FHD است و روکش ماتش هنگام کار در محیط‌های باز و تابش مستقیم نور آفتاب ممکن است . این دستگاه از لپ‌تاپ‌های نسبتا باریک ایسر است؛ همین مسئله حذف درایو نوری را توجیه می‌کند. وجود پورت‌ HDMI، دو پورت‌ USB 3.2‌ و یک USB 2.0 می‌تواند نیاز شما را برطرف کند؛ ولی برای استفاده از پورت‌های بیشتر می‌توانید از یک هاب استفاده کنید. مشخصات سخت‌افزاری، این دستگاه را در رده‌ی کاربری عمومی قرار می‌دهد و باتری 4 سلولی آن که از نوع لیتیوم‌پلیمر است و برای کارهای روزمره بسیار خوب به نظر می‌رسد و تا 4 ساعت شارژدهی دستگاه را تامین می‌کند. این مدل کاستوم شده و توسط شرکت واردکننده ارتقا یافته است.</p>',
+            'created_at' => '2023-10-05 13:23:31',
+            'updated_at' => '2023-10-06 13:06:03',
+        ]);
+        // CategoryProduct::create([
+        //     'category_id' => $category1->id,
+        //     'product_uuid' => $mainProduct->uuid,
+        // ]);
+        // CategoryProduct::create([
+        //     'category_id' => $category2->id,
+        //     'product_uuid' => $mainProduct->uuid,
+        // ]);
+        // CategoryProduct::create([
+        //     'category_id' => $category3->id,
+        //     'product_uuid' => $mainProduct->uuid,
+        // ]);
     }
 }
